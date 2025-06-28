@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
 
 export const useTokenRefresh = () => {
-  const { token, login, logout } = useUser();
+  const { token, user, login, logout } = useUser();
 
   useEffect(() => {
     if (!token) return;
@@ -19,10 +19,10 @@ export const useTokenRefresh = () => {
         const data = await res.json();
 
         if (res.ok && data.token) {
-          const savedUser = JSON.parse(localStorage.getItem('user'));
-          login(savedUser, data.token); 
+          login(user, data.token); 
         } else {
-          logout(); 
+          console.warn('Refresh failed:', data);
+          logout();
         }
       } catch (error) {
         console.error('Token refresh failed:', error);
@@ -31,5 +31,5 @@ export const useTokenRefresh = () => {
     }, 1000 * 60 * 55); 
 
     return () => clearInterval(refreshInterval);
-  }, [token, login, logout]);
+  }, [token, user, login, logout]);
 };

@@ -30,7 +30,7 @@ export default function FoodCard({ food, isFavorite, onClick, onToggleFavorite }
         className="w-full h-32 object-cover rounded-lg mb-2"
         onError={(e) => {
           e.target.onerror = null;
-          e.target.src = 'https://via.placeholder.com/300x200?text=Food';
+          // e.target.src = 'https://via.placeholder.com/300x200?text=Food';
         }}
       />
 
