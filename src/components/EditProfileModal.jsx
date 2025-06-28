@@ -1,21 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
+const EditProfileModal = ({ isOpen, onClose, user, onSave, loading = false }) => {
   const [formData, setFormData] = useState({
-    _full_name: user._full_name || '',
-    _dob: user._dob || '',
-    _weight_kg: user._weight_kg || '',
-    _height_cm: user._height_cm || ''
+    _full_name: '',
+    _dob: '',
+    _weight_kg: '',
+    _height_cm: ''
   });
 
+  useEffect(() => {
+    if (user && isOpen) {
+      setFormData({
+        _full_name: user._full_name || '',
+        _dob: user._dob || '',
+        _weight_kg: user._weight_kg || '',
+        _height_cm: user._height_cm || ''
+      });
+    }
+  }, [user, isOpen]);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData);
+    try {
+      await onSave(formData);
+    } catch (err) {
+      console.error('Failed to save profile:', err);
+    }
   };
 
   return (
@@ -43,6 +59,7 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
                 value={formData._full_name}
                 onChange={handleChange}
                 className="w-full border px-3 py-2 rounded"
+                required
               />
               <input
                 type="date"
@@ -50,6 +67,7 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
                 value={formData._dob}
                 onChange={handleChange}
                 className="w-full border px-3 py-2 rounded"
+                required
               />
               <input
                 type="number"
@@ -58,6 +76,9 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
                 value={formData._weight_kg}
                 onChange={handleChange}
                 className="w-full border px-3 py-2 rounded"
+                min="10"
+                max="300"
+                required
               />
               <input
                 type="number"
@@ -66,20 +87,29 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
                 value={formData._height_cm}
                 onChange={handleChange}
                 className="w-full border px-3 py-2 rounded"
+                min="50"
+                max="300"
+                required
               />
               <div className="flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={onClose}
                   className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+                  disabled={loading}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+                  className={`px-4 py-2 rounded text-white ${
+                    loading
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-purple-600 hover:bg-purple-700'
+                  }`}
+                  disabled={loading}
                 >
-                  Save
+                  {loading ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>

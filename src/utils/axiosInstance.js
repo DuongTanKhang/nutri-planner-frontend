@@ -17,7 +17,7 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Gắn token vào mỗi request
+
 instance.interceptors.request.use(
   (config) => {
     const token = getToken();
@@ -29,20 +29,17 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Xử lý response lỗi (401)
 instance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Nếu nhận lỗi 401 và chưa retry
     if (
       error.response?.status === 401 &&
       !originalRequest._retry
     ) {
       originalRequest._retry = true;
 
-      // Nếu đang refresh, đợi xong rồi dùng token mới
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -73,7 +70,7 @@ instance.interceptors.response.use(
       } catch (err) {
         processQueue(err, null);
         localStorage.removeItem('token');
-        window.location.href = '/login'; // hoặc logout()
+        window.location.href = '/login';
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
