@@ -119,20 +119,6 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
                 {isSubmitting ? 'Logging in...' : 'LOGIN'}
               </button>
             </form>
-
-            <div className="mt-6 text-center text-gray-600 text-sm">Or Sign Up Using</div>
-            <div className="flex justify-center mt-2 space-x-4">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full">
-                <Facebook className="w-4 h-4" />
-              </button>
-              <button className="bg-sky-400 hover:bg-sky-500 text-white p-2 rounded-full">
-                <Twitter className="w-4 h-4" />
-              </button>
-              <button className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full">
-                <Mail className="w-4 h-4" />
-              </button>
-            </div>
-
             <div className="mt-6 text-center text-sm text-gray-700">
               Don&apos;t have an account?{' '}
               <button

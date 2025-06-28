@@ -8,10 +8,11 @@ import ProfileStep3 from './pages/profile/ProfileStep3';
 import FavoriteFoodsPage from './pages/FavoriteFoodsPage';
 import RequireUser from './components/RequireUser';
 import { useUser } from './contexts/UserContext'; 
+import { useProfileStepRedirect } from './hooks/useProfileStepRedirect';
 
 export default function AppRoutes() {
   const { user, token } = useUser();
-
+  useProfileStepRedirect(user);
   return (
     <Routes>
       <Route path="/" element={<Homepage />} />
