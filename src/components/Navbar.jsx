@@ -49,7 +49,7 @@ const Navbar = () => {
           </div>
 
           <ul className="flex space-x-6 text-purple-600 font-medium">
-            <li><a href="#">Home</a></li>
+            <li><a href="/">Home</a></li>
             <li><a href="#">Meals</a></li>
             <li><a href="#">Foods</a></li>
             <li><a href="#">Nutrition</a></li>
