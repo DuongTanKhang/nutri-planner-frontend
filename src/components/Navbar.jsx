@@ -50,10 +50,10 @@ const Navbar = () => {
 
           <ul className="flex space-x-6 text-purple-600 font-medium">
             <li><a href="/">Home</a></li>
-            <li><a href="#">Meals</a></li>
-            <li><a href="#">Foods</a></li>
-            <li><a href="#">Nutrition</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="/meals">Meals</a></li>
+            <li><a href="/foods">Foods</a></li>
+            <li><a href="/nutrition">Nutrition</a></li>
+            <li><a href="/contact">Contact</a></li>
           </ul>
 
           {user ? (
