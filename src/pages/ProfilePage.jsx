@@ -41,12 +41,22 @@ const ProfilePage = () => {
     return date.toLocaleDateString('vi-VN'); // dd/mm/yyyy
   };
 
+  const formatActivityLevel = (level) => {
+    switch (level) {
+      case 'sedentary': return 'Sedentary (little or no exercise)';
+      case 'light': return 'Lightly active (1-3 days/week)';
+      case 'moderate': return 'Moderately active (3-5 days/week)';
+      case 'active': return 'Very active (6-7 days/week)';
+      case 'super': return 'Super active (twice/day or physical job)';
+      default: return level || '--';
+    }
+  };
+
   const avatarUrl = user?._avatar
     ? user._avatar.startsWith('http')
       ? user._avatar
       : `${import.meta.env.VITE_API_BASE_URL}/${user._avatar.replace(/^\/+/, '')}`
     : '/images/default-avatar.png';
-
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -74,6 +84,7 @@ const ProfilePage = () => {
             ['Height', formatValue(user?._height_cm, 'cm')],
             ['Goal', user?.goal_name],
             ['Diet Type', user?.diet_type],
+            ['Activity Level', formatActivityLevel(user?._activity_level)],
           ].map(([label, value]) => (
             <div key={label} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition">
               <p className="text-xs text-gray-500">{label}</p>

@@ -13,7 +13,7 @@ export const useProfileStepRedirect = (user) => {
     if (currentPath.startsWith('/complete-profile/')) return;
 
     const missingStep1 = !user._dob || !user._height_cm || !user._weight_kg;
-    const missingStep2 = !user._goal || !user._diet_type_id;
+    const missingStep2 = !user._goal || !user._diet_type_id || !user._activity_level;
     const missingStep3 = !user.allergens || user.allergens.length === 0;
 
     if (missingStep1) {

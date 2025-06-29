@@ -26,6 +26,7 @@ const UserProvider = ({ children }) => {
     !user._height_cm ||
     !user._goal ||
     !user._diet_type_id ||
+    !user._activity_level ||
     !Array.isArray(user.allergens) || user.allergens.length === 0
   );
 

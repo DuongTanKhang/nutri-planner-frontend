@@ -20,7 +20,16 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave, loading = false }) =>
         _weight_kg: user._weight_kg || '',
         _height_cm: user._height_cm || ''
       });
-      setPreview(user._avatar || '');
+
+      // Xử lý avatar url có base nếu cần
+      const avatarUrl = user._avatar
+        ? (user._avatar.startsWith('http')
+            ? user._avatar
+            : `${import.meta.env.VITE_API_BASE_URL}/${user._avatar.replace(/^\/+/, '')}`)
+        : '/images/default-avatar.png';
+
+      setPreview(avatarUrl);
+      setAvatarFile(null); // reset file khi mở modal mới
     }
   }, [user, isOpen]);
 
@@ -73,7 +82,7 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave, loading = false }) =>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="flex flex-col items-center">
                 <img
-                  src={preview || '/images/default-avatar.png'}
+                  src={preview}
                   alt="Avatar"
                   className="w-24 h-24 rounded-full object-cover border-2 border-purple-400 shadow cursor-pointer"
                   onClick={handleImageClick}

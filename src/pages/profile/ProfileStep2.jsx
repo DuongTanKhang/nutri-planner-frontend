@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext';
 
-
 const ProfileStep2 = ({ token }) => {
   const navigate = useNavigate();
   const { user, updateUser } = useUser();
 
   const [form, setForm] = useState({
     _goal: '',
-    _diet_type_id: ''
+    _diet_type_id: '',
+    _activity_level: '',
   });
   const [dietTypes, setDietTypes] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
@@ -21,7 +21,8 @@ const ProfileStep2 = ({ token }) => {
     if (user) {
       setForm({
         _goal: user._goal || '',
-        _diet_type_id: user._diet_type_id || ''
+        _diet_type_id: user._diet_type_id || '',
+        _activity_level: user._activity_level || '',
       });
     }
   }, [user]);
@@ -68,7 +69,11 @@ const ProfileStep2 = ({ token }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm(prev => ({
+      ...prev,
+      [name]: value,
+      ...(name === '_goal' ? { _diet_type_id: '' } : {})
+    }));
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
@@ -76,6 +81,7 @@ const ProfileStep2 = ({ token }) => {
     const newErrors = {};
     if (!form._goal) newErrors._goal = 'Please select your goal.';
     if (!form._diet_type_id) newErrors._diet_type_id = 'Please select a diet type.';
+    if (!form._active_level) newErrors._active_level = 'Please select activity level.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -131,7 +137,7 @@ const ProfileStep2 = ({ token }) => {
   return (
     <div className="max-w-xl mx-auto mt-16 p-10 rounded-3xl bg-white shadow-md border border-gray-200 text-gray-900">
       <h2 className="text-2xl font-semibold text-center mb-8">
-        Step 2 of 3: Goal & Diet
+        Step 2 of 3: Goal, Diet & Activity
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         {/* Goal */}
@@ -172,6 +178,28 @@ const ProfileStep2 = ({ token }) => {
             ))}
           </select>
           {errors._diet_type_id && <p className="text-red-500 text-sm mt-1">{errors._diet_type_id}</p>}
+        </div>
+
+        {/* Activity Level */}
+        <div>
+          <label htmlFor="_active_level" className="block mb-1 text-sm font-medium text-gray-700">
+            Activity Level
+          </label>
+          <select
+            name="_active_level"
+            id="_active_level"
+            value={form._active_level}
+            onChange={handleChange}
+            className={`w-full px-4 py-2 border text-sm rounded-md bg-white ${errors._active_level ? 'border-red-400' : 'border-gray-300'}`}
+          >
+            <option value="">Select activity level</option>
+            <option value="sedentary">Sedentary (little or no exercise)</option>
+            <option value="light">Lightly active (1-3 days/week)</option>
+            <option value="moderate">Moderately active (3-5 days/week)</option>
+            <option value="active">Very active (6-7 days/week)</option>
+            <option value="super">Super active (twice/day or physical job)</option>
+          </select>
+          {errors._active_level && <p className="text-red-500 text-sm mt-1">{errors._active_level}</p>}
         </div>
 
         {/* Buttons */}
