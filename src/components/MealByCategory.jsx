@@ -39,7 +39,7 @@ export default function MealByCategory() {
 
         setCategories(foodRes.data.data);
         setFoodTypes(typeRes.data.data || []);
-        setAllergens(allergenRes.data || []); // Thường API trả data nằm trong data.data
+        setAllergens(allergenRes.data || []); 
 
         if (token) {
           const favRes = await axios.get('http://localhost:8000/api/favorites/ids', {
@@ -194,7 +194,7 @@ export default function MealByCategory() {
           const matchesFoodType = !filters.foodType || food._food_type_id === filters.foodType;
           const matchesAllergen =
             !filters.allergen ||
-            !(food.allergens || []).some((a) => Number(a._id) === filters.allergen);
+            !(food.allergens || []).some((a) => Number(a._id) === Number(filters.allergen));
           const matchesKeyword = matchesSearch(food);
           return matchesCategory && matchesFoodType && matchesAllergen && matchesKeyword;
         });

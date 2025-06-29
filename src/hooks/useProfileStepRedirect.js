@@ -6,9 +6,10 @@ export const useProfileStepRedirect = (user) => {
   const location = useLocation();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !user._id) return;
 
     const currentPath = location.pathname;
+
     if (currentPath.startsWith('/complete-profile/')) return;
 
     const missingStep1 = !user._dob || !user._height_cm || !user._weight_kg;
@@ -19,7 +20,7 @@ export const useProfileStepRedirect = (user) => {
       navigate('/complete-profile/step1');
     } else if (missingStep2) {
       navigate('/complete-profile/step2');
-    } else if (missingStep3) {
+    } else if (missingStep3 && !user._completed_profile) {
       navigate('/complete-profile/step3');
     }
   }, [user, navigate, location]);

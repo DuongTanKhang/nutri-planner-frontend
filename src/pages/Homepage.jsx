@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MealByCategory from '../components/MealByCategory';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function Homepage() {
   const [showBackToTop, setShowBackToTop] = useState(false);

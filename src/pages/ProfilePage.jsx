@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 import EditProfileModal from '../components/EditProfileModal';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import axios from '../utils/axiosInstance';
 import { toast } from 'react-toastify';
 
 const ProfilePage = () => {
   const { user, setUser } = useUser();
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showImage, setShowImage] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSave = async (formData) => {
     try {
       setLoading(true);
-      const res = await axios.put('/user/profile', formData);
+      const res = await axios.post('/user/profile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       toast.success('Profile updated successfully');
-      setUser(res.data.data);
+      setUser((prev) => ({
+        ...prev,
+        ...res.data.data,
+      }));
       setShowEditModal(false);
     } catch (err) {
       console.error(err);
@@ -27,69 +35,77 @@ const ProfilePage = () => {
 
   const formatValue = (value, unit = '') => (value ? `${value} ${unit}` : '--');
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '--';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('vi-VN'); // dd/mm/yyyy
+  };
+
+  const avatarUrl = user?._avatar
+    ? user._avatar.startsWith('http')
+      ? user._avatar
+      : `${import.meta.env.VITE_API_BASE_URL}/${user._avatar.replace(/^\/+/, '')}`
+    : '/images/default-avatar.png';
+
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="bg-purple-100 shadow-xl rounded-xl p-6 max-w-3xl mx-auto space-y-6">
-        {/* Avatar & Name */}
-        <div className="flex items-center gap-5">
+      <div className="max-w-4xl mx-auto bg-gradient-to-br from-purple-50 to-white p-8 rounded-xl shadow-lg space-y-6">
+        {/* Avatar & Basic Info */}
+        <div className="flex items-center gap-6">
           <img
-            src={user?._avatar || '/images/default-avatar.png'}
+            src={avatarUrl}
             alt="Avatar"
-            className="w-20 h-20 rounded-full object-cover border"
+            className="w-24 h-24 rounded-full border-4 border-purple-500 object-cover shadow-md cursor-pointer"
+            onClick={() => setShowImage(true)}
           />
           <div>
-            <h2 className="text-2xl font-semibold">{user?._full_name || '--'}</h2>
-            <p className="text-sm text-gray-600">{user?._email}</p>
+            <h2 className="text-2xl font-bold text-gray-800">{user?._full_name || '--'}</h2>
+            <p className="text-sm text-gray-500">{user?._email}</p>
           </div>
         </div>
 
         {/* Info Grid */}
-        <div className="grid grid-cols-2 gap-5 text-sm">
-          <div>
-            <span className="text-gray-500">Username</span>
-            <p className="font-medium">{user?._username || '--'}</p>
-          </div>
-          <div>
-            <span className="text-gray-500">Date of Birth</span>
-            <p className="font-medium">{user?._dob || '--'}</p>
-          </div>
-          <div>
-            <span className="text-gray-500">Weight</span>
-            <p className="font-medium">{formatValue(user?._weight_kg, 'kg')}</p>
-          </div>
-          <div>
-            <span className="text-gray-500">Height</span>
-            <p className="font-medium">{formatValue(user?._height_cm, 'cm')}</p>
-          </div>
-          <div>
-            <span className="text-gray-500">Goal</span>
-            <p className="font-medium">{user?.goal_name || '--'}</p>
-          </div>
-          <div>
-            <span className="text-gray-500">Diet Type</span>
-            <p className="font-medium">{user?.diet_type || '--'}</p>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+          {[
+            ['Username', user?._username],
+            ['Date of Birth', formatDate(user?._dob)],
+            ['Weight', formatValue(user?._weight_kg, 'kg')],
+            ['Height', formatValue(user?._height_cm, 'cm')],
+            ['Goal', user?.goal_name],
+            ['Diet Type', user?.diet_type],
+          ].map(([label, value]) => (
+            <div key={label} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition">
+              <p className="text-xs text-gray-500">{label}</p>
+              <p className="text-base font-medium text-gray-800">{value || '--'}</p>
+            </div>
+          ))}
         </div>
 
         {/* Allergens */}
         <div>
-          <span className="text-gray-500 text-sm">Allergens</span>
-          <ul className="list-disc list-inside mt-1 text-sm text-red-600">
-            {user?.allergens && user.allergens.length > 0 ? (
-              user.allergens.map((a) => (
-                <li key={a._id || a.id}>{a._name || a.name}</li>
-              ))
-            ) : (
-              <li className="text-gray-400">No allergens</li>
-            )}
-          </ul>
+          <p className="text-sm text-gray-500 mb-1">Allergens</p>
+          {user?.allergens?.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {user.allergens.map((a) => (
+                <span
+                  key={a._id ?? a.id}
+                  className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full"
+                >
+                  {a._name || a.name}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400">No allergens</p>
+          )}
         </div>
 
         {/* Edit Button */}
         <div className="text-right">
           <button
             onClick={() => setShowEditModal(true)}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg shadow"
           >
             Edit Profile
           </button>
@@ -108,6 +124,20 @@ const ProfilePage = () => {
           />
         )}
       </AnimatePresence>
+
+      {/* Avatar Zoom Modal */}
+      {showImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+          onClick={() => setShowImage(false)}
+        >
+          <img
+            src={avatarUrl}
+            alt="Zoomed Avatar"
+            className="max-w-[90%] max-h-[90%] rounded-xl border-4 border-white shadow-xl"
+          />
+        </div>
+      )}
     </div>
   );
 };

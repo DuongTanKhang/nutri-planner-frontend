@@ -64,7 +64,11 @@ const Navbar = () => {
               >
                 {user._avatar ? (
                   <img
-                    src={user._avatar}
+                    src={
+                      user._avatar.startsWith('http')
+                        ? user._avatar
+                        : `${import.meta.env.VITE_API_BASE_URL}/${user._avatar.replace(/^\/+/, '')}`
+                    }
                     alt="avatar"
                     className="w-8 h-8 rounded-full object-cover ring-2 ring-purple-400"
                   />
@@ -73,6 +77,7 @@ const Navbar = () => {
                     {user._full_name?.charAt(0).toUpperCase() || user._username?.charAt(0).toUpperCase()}
                   </div>
                 )}
+
               </div>
 
               <AnimatePresence>

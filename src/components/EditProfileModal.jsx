@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const EditProfileModal = ({ isOpen, onClose, user, onSave, loading = false }) => {
+  const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     _full_name: '',
     _dob: '',
     _weight_kg: '',
-    _height_cm: ''
+    _height_cm: '',
   });
+  const [preview, setPreview] = useState('');
+  const [avatarFile, setAvatarFile] = useState(null);
 
   useEffect(() => {
     if (user && isOpen) {
@@ -17,6 +20,7 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave, loading = false }) =>
         _weight_kg: user._weight_kg || '',
         _height_cm: user._height_cm || ''
       });
+      setPreview(user._avatar || '');
     }
   }, [user, isOpen]);
 
@@ -25,13 +29,28 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave, loading = false }) =>
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await onSave(formData);
-    } catch (err) {
-      console.error('Failed to save profile:', err);
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      data.append(key, value);
+    });
+    if (avatarFile) {
+      data.append('_avatar', avatarFile);
     }
+    await onSave(data);
   };
 
   return (
@@ -52,6 +71,28 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave, loading = false }) =>
           >
             <h2 className="text-xl font-bold text-purple-700 mb-4">Edit Profile</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="flex flex-col items-center">
+                <img
+                  src={preview || '/images/default-avatar.png'}
+                  alt="Avatar"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-purple-400 shadow cursor-pointer"
+                  onClick={handleImageClick}
+                />
+                <button
+                  type="button"
+                  onClick={handleImageClick}
+                  className="mt-2 text-sm text-purple-600 hover:underline"
+                >
+                  Change avatar
+                </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </div>
               <input
                 type="text"
                 name="_full_name"
@@ -102,11 +143,7 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave, loading = false }) =>
                 </button>
                 <button
                   type="submit"
-                  className={`px-4 py-2 rounded text-white ${
-                    loading
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-purple-600 hover:bg-purple-700'
-                  }`}
+                  className={`px-4 py-2 rounded text-white ${loading ? 'bg-gray-400' : 'bg-purple-600 hover:bg-purple-700'}`}
                   disabled={loading}
                 >
                   {loading ? 'Saving...' : 'Save'}
