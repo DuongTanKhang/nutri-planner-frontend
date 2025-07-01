@@ -81,7 +81,7 @@ const ProfileStep2 = ({ token }) => {
     const newErrors = {};
     if (!form._goal) newErrors._goal = 'Please select your goal.';
     if (!form._diet_type_id) newErrors._diet_type_id = 'Please select a diet type.';
-    if (!form._active_level) newErrors._active_level = 'Please select activity level.';
+    if (!form._activity_level) newErrors._activity_level = 'Please select activity level.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -182,15 +182,15 @@ const ProfileStep2 = ({ token }) => {
 
         {/* Activity Level */}
         <div>
-          <label htmlFor="_active_level" className="block mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="_activity_level" className="block mb-1 text-sm font-medium text-gray-700">
             Activity Level
           </label>
           <select
-            name="_active_level"
-            id="_active_level"
-            value={form._active_level}
+            name="_activity_level"
+            id="_activity_level"
+            value={form._activity_level}
             onChange={handleChange}
-            className={`w-full px-4 py-2 border text-sm rounded-md bg-white ${errors._active_level ? 'border-red-400' : 'border-gray-300'}`}
+            className={`w-full px-4 py-2 border text-sm rounded-md bg-white ${errors._activity_level ? 'border-red-400' : 'border-gray-300'}`}
           >
             <option value="">Select activity level</option>
             <option value="sedentary">Sedentary (little or no exercise)</option>
@@ -199,7 +199,7 @@ const ProfileStep2 = ({ token }) => {
             <option value="active">Very active (6-7 days/week)</option>
             <option value="super">Super active (twice/day or physical job)</option>
           </select>
-          {errors._active_level && <p className="text-red-500 text-sm mt-1">{errors._active_level}</p>}
+          {errors._activity_level && <p className="text-red-500 text-sm mt-1">{errors._activity_level}</p>}
         </div>
 
         {/* Buttons */}
