@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MealByCategory from '../components/MealByCategory';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import HeroSection from '../components/HeroSection';
 
 export default function Homepage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -18,50 +19,10 @@ export default function Homepage() {
 
   return (
     <div className="min-h-screen bg-purple-50 font-sans text-gray-800">
-
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-purple-200 via-purple-300 to-purple-400 text-purple-900 py-24 px-4 text-center shadow-lg">
-        <h2 className="text-5xl font-extrabold mb-6">Plan Your Meals, Nourish Your Life</h2>
-        <p className="text-xl font-light mb-8">Healthy meal planning made simple with NutriPlanner.</p>
-        <button className="bg-white text-purple-600 font-semibold px-8 py-3 rounded-full shadow hover:bg-gray-100 transition">
-          Get Started
-        </button>
-      </section>
-
-      {/* Foods Section */}
+      <HeroSection />
       <MealByCategory />
 
-      {/* Introduction Section */}
-      <section className="bg-white py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-purple-900 mb-6">What is NutriPlanner?</h2>
-          <p className="text-lg text-gray-600 leading-relaxed">
-            NutriPlanner is your intelligent companion in meal planning and nutrition tracking.
-            Whether you're a health enthusiast, a parent managing family meals, or someone with specific dietary needs,
-            NutriPlanner helps you plan balanced meals, monitor nutrient intake, and avoid allergens effortlessly.
-          </p>
-        </div>
-      </section>
-
-      {/* Why Choose Section */}
-      <section className="bg-purple-100 py-20">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-10 text-purple-900">Why Choose NutriPlanner?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
-            {[
-              { icon: '🥗', title: 'Track Nutrition', desc: 'Monitor calories, macros, and vitamins easily.' },
-              { icon: '📅', title: 'Plan Meals', desc: 'Organize weekly meal plans in minutes.' },
-              { icon: '⚠️', title: 'Allergen Alert', desc: 'Avoid foods that trigger allergies.' },
-            ].map((item, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow hover:shadow-md transition">
-                <div className="text-5xl">{item.icon}</div>
-                <h3 className="text-xl font-bold mt-4 mb-2 text-purple-700">{item.title}</h3>
-                <p className="text-gray-600">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       {/* Footer */}
       <footer className="bg-purple-900 text-white py-12">

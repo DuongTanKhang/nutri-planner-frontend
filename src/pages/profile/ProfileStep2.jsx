@@ -16,6 +16,7 @@ const ProfileStep2 = ({ token }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -81,7 +82,7 @@ const ProfileStep2 = ({ token }) => {
     const newErrors = {};
     if (!form._goal) newErrors._goal = 'Please select your goal.';
     if (!form._diet_type_id) newErrors._diet_type_id = 'Please select a diet type.';
-    if (!form._active_level) newErrors._active_level = 'Please select activity level.';
+    if (!form._activity_level) newErrors._activity_level = 'Please select activity level.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -89,42 +90,49 @@ const ProfileStep2 = ({ token }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-
+    setError('');
     setLoading(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/users/update-step2`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(form)
-      });
-
-      const text = await res.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        alert('Invalid server response.');
-        return;
-      }
-
-      if (res.ok) {
-        updateUser(data.user);
-        navigate('/complete-profile/step3', { state: { manualNavigation: true } });
-      } else if (data.errors) {
-        const serverErrors = {};
-        for (const key in data.errors) {
-          serverErrors[key] = data.errors[key].join(' ');
+      if (token) {
+        const res = await fetch(`http://127.0.0.1:8000/api/users/update-step2`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(form)
+        });
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          setError('Invalid server response.');
+          setLoading(false);
+          return;
         }
-        setErrors(serverErrors);
+        if (res.ok) {
+          updateUser(data.user);
+        } else if (data.errors) {
+          const serverErrors = {};
+          for (const key in data.errors) {
+            serverErrors[key] = data.errors[key].join(' ');
+          }
+          setErrors(serverErrors);
+          setLoading(false);
+          return;
+        } else {
+          setError(data.error || 'Update failed.');
+          setLoading(false);
+          return;
+        }
       } else {
-        alert(data.error || 'Update failed.');
+        // No token, just update local user context
+        updateUser(form);
       }
+      navigate('/complete-profile/step3', { state: { manualNavigation: true } });
     } catch (err) {
-      console.error('Submit error:', err);
-      alert('An error occurred.');
+      setError('An error occurred.');
     } finally {
       setLoading(false);
     }
@@ -182,15 +190,15 @@ const ProfileStep2 = ({ token }) => {
 
         {/* Activity Level */}
         <div>
-          <label htmlFor="_active_level" className="block mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="_activity_level" className="block mb-1 text-sm font-medium text-gray-700">
             Activity Level
           </label>
           <select
-            name="_active_level"
-            id="_active_level"
-            value={form._active_level}
+            name="_activity_level"
+            id="_activity_level"
+            value={form._activity_level}
             onChange={handleChange}
-            className={`w-full px-4 py-2 border text-sm rounded-md bg-white ${errors._active_level ? 'border-red-400' : 'border-gray-300'}`}
+            className={`w-full px-4 py-2 border text-sm rounded-md bg-white ${errors._activity_level ? 'border-red-400' : 'border-gray-300'}`}
           >
             <option value="">Select activity level</option>
             <option value="sedentary">Sedentary (little or no exercise)</option>
@@ -199,8 +207,10 @@ const ProfileStep2 = ({ token }) => {
             <option value="active">Very active (6-7 days/week)</option>
             <option value="super">Super active (twice/day or physical job)</option>
           </select>
-          {errors._active_level && <p className="text-red-500 text-sm mt-1">{errors._active_level}</p>}
+          {errors._activity_level && <p className="text-red-500 text-sm mt-1">{errors._activity_level}</p>}
         </div>
+
+        {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
 
         {/* Buttons */}
         <div className="flex justify-between pt-6">

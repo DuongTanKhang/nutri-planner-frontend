@@ -9,6 +9,8 @@ import FavoriteFoodsPage from './pages/FavoriteFoodsPage';
 import RequireUser from './components/RequireUser';
 import { useUser } from './contexts/UserContext'; 
 import { useProfileStepRedirect } from './hooks/useProfileStepRedirect';
+import CreateAccountWelcome from './pages/CreateAccountWelcome';
+import CreateAccountGoals from './pages/CreateAccountGoals';
 
 
 export default function AppRoutes() {
@@ -19,6 +21,8 @@ export default function AppRoutes() {
       <Route path="/" element={<Homepage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/favorites" element={<FavoriteFoodsPage />} />
+      <Route path="/account/create/welcome" element={<CreateAccountWelcome />} />
+      <Route path="/account/create/goals" element={<CreateAccountGoals />} />
 
       <Route
         path="/complete-profile/step1"
