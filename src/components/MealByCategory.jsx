@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import axios from '../utils/axiosInstance';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
@@ -27,7 +27,6 @@ export default function MealByCategory() {
   });
 
   useEffect(() => {
-    console.log('Token used for API:', token);
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -39,7 +38,7 @@ export default function MealByCategory() {
 
         setCategories(foodRes.data.data);
         setFoodTypes(typeRes.data.data || []);
-        setAllergens(allergenRes.data || []); 
+        setAllergens(allergenRes.data || []);
 
         if (token) {
           const favRes = await axios.get('http://localhost:8000/api/favorites/ids', {
@@ -102,22 +101,33 @@ export default function MealByCategory() {
     setFoodDetail(null);
   };
 
-  const matchesSearch = (food) => {
-    if (!searchTerm.trim()) return true;
+  const filteredFoodsByCategory = useMemo(() => {
+    const keyword = searchTerm.trim().toLowerCase();
+    const result = new Map();
 
-    const keyword = searchTerm.toLowerCase();
+    categories.forEach((category) => {
+      const matchedFoods = (category.foods || []).filter((food) => {
+        const matchesCategory = !filters.category || String(category._id) === filters.category;
+        const matchesFoodType = !filters.foodType || food._food_type_id === filters.foodType;
+        const matchesAllergen =
+          !filters.allergen ||
+          !(food.allergens || []).some((a) => Number(a._id) === Number(filters.allergen));
+        const matchesKeyword =
+          !keyword ||
+          food._name?.toLowerCase().includes(keyword) ||
+          food.diet_type?.toLowerCase().includes(keyword) ||
+          (food.ingredients || []).some((ing) => ing._name?.toLowerCase().includes(keyword));
 
-    const nameMatch = food._name?.toLowerCase().includes(keyword);
-    const dietMatch = food.diet_type?.toLowerCase().includes(keyword);
+        return matchesCategory && matchesFoodType && matchesAllergen && matchesKeyword;
+      });
 
-    const ingredientMatch = (food.ingredients || []).some((ing) =>
-      ing._name?.toLowerCase().includes(keyword)
-    );
+      if (matchedFoods.length > 0) {
+        result.set(category._id, { ...category, foods: matchedFoods });
+      }
+    });
 
-    return nameMatch || dietMatch || ingredientMatch;
-  };
-
-
+    return result;
+  }, [categories, filters, searchTerm]);
 
   if (loading) {
     return (
@@ -134,7 +144,6 @@ export default function MealByCategory() {
         Meal Catalog by Category
       </h2>
 
-      {/* Filters */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-10">
         <select
           className="p-2 border rounded"
@@ -186,44 +195,26 @@ export default function MealByCategory() {
         />
       </div>
 
-      {/* Render categorized meals */}
-      {categories.map((category) => {
-        const filteredFoods = category.foods?.filter((food) => {
-          const matchesCategory =
-            !filters.category || Number(category._id) === Number(filters.category);
-          const matchesFoodType = !filters.foodType || food._food_type_id === filters.foodType;
-          const matchesAllergen =
-            !filters.allergen ||
-            !(food.allergens || []).some((a) => Number(a._id) === Number(filters.allergen));
-          const matchesKeyword = matchesSearch(food);
-          return matchesCategory && matchesFoodType && matchesAllergen && matchesKeyword;
-        });
-
-        if (!filteredFoods || filteredFoods.length === 0) return null;
-
-        return (
-          <div key={category._id} className="mb-16">
-            <h3 className="text-2xl font-semibold text-purple-800 mb-6">{category._name}</h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredFoods.map((food) => {
-                const normalized = normalizeFood(food);
-                return (
-                  <FoodCard
-                    key={normalized._id}
-                    food={normalized}
-                    isFavorite={favoriteIds.includes(Number(normalized._id))}
-                    onClick={() => fetchFoodDetail(normalized._id)}
-                    onToggleFavorite={() => handleToggleFavorite(normalized._id)}
-                  />
-                );
-              })}
-            </div>
+      {Array.from(filteredFoodsByCategory.values()).map((category) => (
+        <div key={category._id} className="mb-16">
+          <h3 className="text-2xl font-semibold text-purple-800 mb-6">{category._name}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {category.foods.map((food) => {
+              const normalized = normalizeFood(food);
+              return (
+                <FoodCard
+                  key={normalized._id}
+                  food={normalized}
+                  isFavorite={favoriteIds.includes(Number(normalized._id))}
+                  onClick={() => fetchFoodDetail(normalized._id)}
+                  onToggleFavorite={() => handleToggleFavorite(normalized._id)}
+                />
+              );
+            })}
           </div>
-        );
-      })}
+        </div>
+      ))}
 
-      {/* Modals */}
       <AnimatePresence>
         {selectedFood &&
           (loadingFoodDetail || !foodDetail ? (
