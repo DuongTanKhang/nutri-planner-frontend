@@ -11,6 +11,10 @@ import { useUser } from './contexts/UserContext';
 import { useProfileStepRedirect } from './hooks/useProfileStepRedirect';
 import CreateAccountWelcome from './pages/CreateAccountWelcome';
 import CreateAccountGoals from './pages/CreateAccountGoals';
+import TermsOfUse from './pages/TermsOfUse';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import CookiePolicy from './pages/CookiePolicy';
+import PrivacyRights from './pages/PrivacyRights';
 
 
 export default function AppRoutes() {
@@ -23,6 +27,10 @@ export default function AppRoutes() {
       <Route path="/favorites" element={<FavoriteFoodsPage />} />
       <Route path="/account/create/welcome" element={<CreateAccountWelcome />} />
       <Route path="/account/create/goals" element={<CreateAccountGoals />} />
+      <Route path="/terms-of-use" element={<TermsOfUse />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/cookie-policy" element={<CookiePolicy />} />
+      <Route path="/privacy-rights" element={<PrivacyRights />} />
 
       <Route
         path="/complete-profile/step1"

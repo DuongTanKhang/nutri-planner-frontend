@@ -5,7 +5,7 @@ import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal';
 import ConfirmLogoutModal from './ConfirmLogoutModal';
 import { useUser } from '../contexts/UserContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -15,6 +15,37 @@ const Navbar = () => {
 
   const { user, logout } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Helper to scroll to section by id
+  const scrollToSection = (id) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100); // Delay to ensure DOM is ready
+  };
+
+  const handleNavFoods = (e) => {
+    e.preventDefault();
+    if (location.pathname === '/') {
+      scrollToSection('meal-by-category');
+    } else {
+      navigate('/', { replace: false });
+      setTimeout(() => scrollToSection('meal-by-category'), 300);
+    }
+  };
+
+  const handleNavContact = (e) => {
+    e.preventDefault();
+    if (location.pathname === '/') {
+      scrollToSection('footer');
+    } else {
+      navigate('/', { replace: false });
+      setTimeout(() => scrollToSection('footer'), 300);
+    }
+  };
 
   const openLogin = () => {
     setShowLoginModal(true);
@@ -42,18 +73,18 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-purple-100 shadow-md py-4 px-6">
+      <nav className="bg-[linear-gradient(90deg,_#c288fc_0%,_#0060e0_100%)] shadow-md py-4 px-6 fixed top-0 left-0 w-full z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="text-2xl font-bold text-purple-700 cursor-pointer" onClick={() => navigate('/')}>
+          <div className="text-2xl font-bold text-white cursor-pointer" onClick={() => navigate('/')}>
             Nutri-Planner
           </div>
 
-          <ul className="flex space-x-6 text-purple-600 font-medium">
+          <ul className="flex space-x-6 text-white font-medium">
             <li><a href="/">Home</a></li>
-            <li><a href="/meals">Meals</a></li>
-            <li><a href="/foods">Foods</a></li>
+            {/* <li><a href="/meals">Meals</a></li> */}
+            <li><a href="/foods" onClick={handleNavFoods}>Foods</a></li>
             <li><a href="/nutrition">Nutrition</a></li>
-            <li><a href="/contact">Contact</a></li>
+            <li><a href="/contact" onClick={handleNavContact}>Contact</a></li>
           </ul>
 
           {user ? (

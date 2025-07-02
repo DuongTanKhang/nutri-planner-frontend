@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import MealByCategory from '../components/MealByCategory';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
+import Footer from '../components/Footer';
+import FeedbackSidebar from '../components/FeedbackSidebar';
 
 export default function Homepage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -18,64 +18,16 @@ export default function Homepage() {
   };
 
   return (
-    <div className="min-h-screen bg-purple-50 font-sans text-gray-800">
+    <div className="min-h-screen font-sans text-gray-800 bg-[linear-gradient(90deg,_#c288fc_0%,_#0060e0_100%)]">
       <HeroSection />
-      <MealByCategory />
+      <div id="meal-by-category">
+        <MealByCategory />
+      </div>
 
-      
-
-      {/* Footer */}
-      <footer className="bg-purple-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Contact Section */}
-            <div>
-              <h3 className="text-2xl font-bold mb-6">Contact</h3>
-              <div className="space-y-3">
-                <p><strong>Health Coach/Support Email:</strong> support@nutriplanner.com</p>
-                <p><strong>Phone:</strong> (+84) 0836622500</p>
-                <p><strong>Physical Center Address:</strong> 123 LÊ THỊ RIÊNG, 12 District, HCMC</p>
-              </div>
-              {/* <div className="flex space-x-4 mt-6">
-                <img src="/logo/fb.PNG" alt="Facebook" className="h-8 w-8" />
-                <img src="/logo/zalo.PNG" alt="Zalo" className="h-8 w-8" />
-              </div> */}
-            </div>
-
-            {/* Google Map Section */}
-            <div>
-              <h3 className="text-2xl font-bold mb-6">Our Location</h3>
-              <div className="bg-white rounded-lg overflow-hidden shadow-lg">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.1234567890123!2d106.6297!3d10.8231!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDQ5JzIzLjEiTiAxMDbCsDM3JzQ2LjkiRQ!5e0!3m2!1sen!2s!4v1234567890123"
-                  width="100%"
-                  height="200"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="NutriPlanner Physical Center Location"
-                ></iframe>
-              </div>
-            </div>
-
-            {/* Privacy Policy Section */}
-            <div className="text-right">
-              <h3 className="text-2xl font-bold mb-6">Privacy Policy</h3>
-              <div className="space-y-3 text-right">
-                <Link to="/terms-of-use" className="block hover:underline">Terms of Use</Link>
-                <Link to="/privacy-policy" className="block hover:underline">Privacy Policy</Link>
-                <Link to="/cookie-policy" className="block hover:underline">Cookie Policy</Link>
-                <Link to="/privacy-rights" className="block hover:underline">Privacy Rights</Link>
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-purple-700 mt-8 pt-8 text-center">
-            <p className="text-sm">&copy; {new Date().getFullYear()} NutriPlanner. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <FeedbackSidebar />
+      <div id="footer">
+        <Footer />
+      </div>
 
       {showBackToTop && (
         <button

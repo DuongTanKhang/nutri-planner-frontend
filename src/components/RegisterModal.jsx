@@ -13,7 +13,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // ✅
+  const [isSubmitting, setIsSubmitting] = useState(false); 
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,7 +21,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSubmitting) return; // ✅ Ngăn gửi nếu đang xử lý
+    if (isSubmitting) return; // Ngăn gửi nếu đang xử lý
     setIsSubmitting(true);
     setErrors({});
     setSuccessMessage('');
@@ -107,7 +107,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
             <button
               onClick={onClose}
               className="absolute top-2 right-3 text-gray-600 hover:text-red-500 text-2xl"
-              disabled={isSubmitting} // ❌ Ngăn đóng khi đang xử lý
+              disabled={isSubmitting} // Ngăn đóng khi đang xử lý
             >
               &times;
             </button>
@@ -221,7 +221,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
               <button
                 type="submit"
-                disabled={isSubmitting} // ✅ Vô hiệu hóa khi đang gửi
+                disabled={isSubmitting} // Vô hiệu hóa khi đang gửi
                 className={`w-full mt-8 py-2 rounded font-semibold transition text-white ${
                   isSubmitting
                     ? 'bg-gray-400 cursor-not-allowed'

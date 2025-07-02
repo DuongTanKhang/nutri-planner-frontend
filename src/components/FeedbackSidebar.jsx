@@ -11,7 +11,7 @@ const FeedbackSidebar = () => {
       {/* Sidebar Button */}
       <div className="fixed middle top-1/2 z-40 -translate-y-1/2 m-0 p-0" style={{ right: 17 , top: 400}}>
         <button
-          className="bg-purple-600 text-white py-1 px-1 rounded-lg shadow-lg flex flex-row items-center gap-1 hover:bg-purple-700 transition border-0"
+          className="bg-blue-600 text-white py-1 px-1 rounded-lg shadow-lg flex flex-row items-center gap-1 hover:bg-purple-700 transition border-0"
           onClick={() => setOpen(true)}
           style={{ transform: 'rotate(270deg)', transformOrigin: 'right center', marginRight: 0, paddingRight: 0 }}
         >

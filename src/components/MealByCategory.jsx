@@ -3,7 +3,6 @@ import axios from '../utils/axiosInstance';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import IngredientsModal from './modals/IngredientsModal';
-import NutrientsModal from './modals/NutrientsModal';
 import FoodCard from '../components/FoodCard';
 import { normalizeFood } from '../utils/normalizeFood';
 import { useUser } from '../contexts/UserContext';
@@ -18,7 +17,6 @@ export default function MealByCategory() {
   const [selectedFood, setSelectedFood] = useState(null);
   const [foodDetail, setFoodDetail] = useState(null);
   const [loadingFoodDetail, setLoadingFoodDetail] = useState(false);
-  const [showNutrients, setShowNutrients] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     category: '',
@@ -97,7 +95,6 @@ export default function MealByCategory() {
 
   const closeModal = () => {
     setSelectedFood(null);
-    setShowNutrients(false);
     setFoodDetail(null);
   };
 
@@ -140,7 +137,7 @@ export default function MealByCategory() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-16">
-      <h2 className="text-3xl font-bold text-center mb-10 text-purple-900">
+      <h2 className="text-3xl font-bold text-center mb-10 text-white">
         Meal Catalog by Category
       </h2>
 
@@ -216,8 +213,8 @@ export default function MealByCategory() {
       ))}
 
       <AnimatePresence>
-        {selectedFood &&
-          (loadingFoodDetail || !foodDetail ? (
+        {selectedFood && (
+          loadingFoodDetail || !foodDetail ? (
             <motion.div
               className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center"
               initial={{ opacity: 0 }}
@@ -235,21 +232,15 @@ export default function MealByCategory() {
                 <p>Loading food detail...</p>
               </motion.div>
             </motion.div>
-          ) : showNutrients ? (
-            <NutrientsModal
-              nutrients={foodDetail.nutrients}
-              foodName={foodDetail.name}
-              onClose={closeModal}
-              onBack={() => setShowNutrients(false)}
-            />
           ) : (
             <IngredientsModal
               food={foodDetail}
               loading={loadingFoodDetail}
               onClose={closeModal}
-              onShowNutrient={() => setShowNutrients(true)}
+              nutrients={foodDetail.nutrients || []}
             />
-          ))}
+          )
+        )}
       </AnimatePresence>
     </section>
   );
