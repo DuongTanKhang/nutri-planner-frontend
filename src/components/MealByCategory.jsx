@@ -23,6 +23,7 @@ export default function MealByCategory() {
     foodType: '',
     allergen: '',
   });
+  const [visibleCategoryCount, setVisibleCategoryCount] = useState(3);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -135,6 +136,10 @@ export default function MealByCategory() {
     );
   }
 
+  const categoryArray = Array.from(filteredFoodsByCategory.values());
+  const visibleCategories = categoryArray.slice(0, visibleCategoryCount);
+  const hasMore = visibleCategoryCount < categoryArray.length;
+
   return (
     <section className="max-w-7xl mx-auto px-4 py-16">
       <h2 className="text-3xl font-bold text-center mb-10 text-white">
@@ -192,7 +197,7 @@ export default function MealByCategory() {
         />
       </div>
 
-      {Array.from(filteredFoodsByCategory.values()).map((category) => (
+      {visibleCategories.map((category) => (
         <div key={category._id} className="mb-16">
           <h3 className="text-2xl font-semibold text-purple-800 mb-6">{category._name}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -211,6 +216,17 @@ export default function MealByCategory() {
           </div>
         </div>
       ))}
+
+      {hasMore && (
+        <div className="text-center mt-10">
+          <button
+            onClick={() => setVisibleCategoryCount((prev) => prev + 3)}
+            className="px-5 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
+          >
+            Load more categories
+          </button>
+        </div>
+      )}
 
       <AnimatePresence>
         {selectedFood && (

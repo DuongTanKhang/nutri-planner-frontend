@@ -13,7 +13,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,13 +21,23 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSubmitting) return; // Ngăn gửi nếu đang xử lý
+    if (isSubmitting) return;
     setIsSubmitting(true);
     setErrors({});
     setSuccessMessage('');
 
-    if (form.password !== form.confirmPassword) {
-      setErrors({ confirmPassword: 'Passwords do not match.' });
+    const newErrors = {};
+    if (!form.fullName.trim()) newErrors.fullName = 'Full Name is required.';
+    if (!form.username.trim()) newErrors.username = 'Username is required.';
+    if (!form.email.trim()) newErrors.email = 'Email is required.';
+    if (!form.password.trim()) newErrors.password = 'Password is required.';
+    if (!form.confirmPassword.trim()) newErrors.confirmPassword = 'Confirm password is required.';
+    if (!form.gender) newErrors.gender = 'Please select a gender.';
+    if (form.password !== form.confirmPassword)
+      newErrors.confirmPassword = 'Passwords do not match.';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       setIsSubmitting(false);
       return;
     }
@@ -52,7 +62,6 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
         const text = await response.text();
         data = text ? JSON.parse(text) : {};
       } catch (err) {
-        console.error('JSON parse error:', err);
         setErrors({ general: 'Server sent invalid JSON response.' });
         setIsSubmitting(false);
         return;
@@ -82,7 +91,6 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
         setIsSubmitting(false);
       }
     } catch (err) {
-      console.error('Fetch error:', err);
       setErrors({ general: 'Network error. Please try again later.' });
       setIsSubmitting(false);
     }
@@ -107,7 +115,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
             <button
               onClick={onClose}
               className="absolute top-2 right-3 text-gray-600 hover:text-red-500 text-2xl"
-              disabled={isSubmitting} // Ngăn đóng khi đang xử lý
+              disabled={isSubmitting}
             >
               &times;
             </button>
@@ -123,7 +131,6 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Full Name */}
                 <div>
                   <label className="block text-gray-600 mb-1">Full Name</label>
                   <input
@@ -132,12 +139,10 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                     value={form.fullName}
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded px-3 py-2"
-                    required
                   />
                   {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
                 </div>
 
-                {/* Username */}
                 <div>
                   <label className="block text-gray-600 mb-1">Username</label>
                   <input
@@ -146,12 +151,10 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                     value={form.username}
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded px-3 py-2"
-                    required
                   />
                   {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
                 </div>
 
-                {/* Email */}
                 <div>
                   <label className="block text-gray-600 mb-1">Email</label>
                   <input
@@ -160,12 +163,10 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                     value={form.email}
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded px-3 py-2"
-                    required
                   />
                   {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
 
-                {/* Password */}
                 <div>
                   <label className="block text-gray-600 mb-1">Password</label>
                   <input
@@ -174,12 +175,10 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                     value={form.password}
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded px-3 py-2"
-                    required
                   />
                   {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                 </div>
 
-                {/* Confirm Password */}
                 <div>
                   <label className="block text-gray-600 mb-1">Confirm Password</label>
                   <input
@@ -188,7 +187,6 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                     value={form.confirmPassword}
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded px-3 py-2"
-                    required
                   />
                   {errors.confirmPassword && (
                     <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
@@ -196,7 +194,6 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                 </div>
               </div>
 
-              {/* Gender */}
               <div className="mt-6">
                 <label className="block text-gray-700 mb-2 font-medium">Gender</label>
                 <div className="flex gap-6">
@@ -221,7 +218,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
               <button
                 type="submit"
-                disabled={isSubmitting} // Vô hiệu hóa khi đang gửi
+                disabled={isSubmitting}
                 className={`w-full mt-8 py-2 rounded font-semibold transition text-white ${
                   isSubmitting
                     ? 'bg-gray-400 cursor-not-allowed'

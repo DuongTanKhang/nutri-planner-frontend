@@ -1,20 +1,33 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Lock, Facebook, Twitter, Mail } from 'lucide-react';
-import { useUser } from '../contexts/UserContext'; 
+import { User, Lock } from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
 
 const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login } = useUser(); 
+  const { login } = useUser();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
+    setErrorMessage('');
+    setFieldErrors({});
     setIsSubmitting(true);
+
+    // Frontend validation
+    const errors = {};
+    if (!email.trim()) errors.email = 'Email is required.';
+    if (!password.trim()) errors.password = 'Password is required.';
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const response = await fetch('http://localhost:8000/api/login', {
@@ -27,25 +40,29 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
       });
 
       let data;
-
       try {
         const text = await response.text();
         data = text ? JSON.parse(text) : {};
       } catch (jsonError) {
-        console.error('Không thể parse JSON:', jsonError);
-        setError('Server sent invalid JSON response.');
+        console.error('Cannot parse JSON:', jsonError);
+        setErrorMessage('⚠️ Server returned invalid data.');
+        setIsSubmitting(false);
         return;
       }
 
       if (!response.ok) {
-        setError(data.message || 'Login failed');
+        if (response.status === 401 || data.message === 'Unauthorized') {
+          setErrorMessage('❌ Invalid email or password.');
+        } else {
+          setErrorMessage(data.message || 'Login failed. Please try again.');
+        }
       } else {
-        login(data.user, data.token); 
+        login(data.user, data.token);
         onClose();
       }
     } catch (err) {
-      console.error('Lỗi mạng:', err);
-      setError('Server error. Please try again later.');
+      console.error('Network error:', err);
+      setErrorMessage('🚫 Network error. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
@@ -76,6 +93,12 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
 
             <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
 
+            {errorMessage && (
+              <div className="bg-red-100 text-red-700 text-sm px-4 py-2 rounded border border-red-300 mb-4">
+                {errorMessage}
+              </div>
+            )}
+
             <form className="space-y-5" onSubmit={handleLogin}>
               <div>
                 <label className="block text-gray-600 mb-1">Email</label>
@@ -87,9 +110,11 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Type your email"
                     className="w-full px-2 py-2 outline-none"
-                    required
                   />
                 </div>
+                {fieldErrors.email && (
+                  <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+                )}
               </div>
 
               <div>
@@ -102,12 +127,12 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Type your password"
                     className="w-full px-2 py-2 outline-none"
-                    required
                   />
                 </div>
+                {fieldErrors.password && (
+                  <p className="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
+                )}
               </div>
-
-              {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
               <button
                 type="submit"
@@ -119,6 +144,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
                 {isSubmitting ? 'Logging in...' : 'LOGIN'}
               </button>
             </form>
+
             <div className="mt-6 text-center text-sm text-gray-700">
               Don&apos;t have an account?{' '}
               <button
