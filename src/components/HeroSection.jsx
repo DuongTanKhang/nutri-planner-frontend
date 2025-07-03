@@ -12,7 +12,7 @@ export default function HeroSection() {
       }}
     >
       <div
-        className="flex w-full max-w-[1000px] justify-between items-center"
+        className="flex w-full max-w-[1100px] justify-between items-center"
       >
         {/* Content */}
         <div style={{ width: 700 }} className="flex flex-col justify-center">
@@ -88,17 +88,22 @@ export default function HeroSection() {
             style={{
               border: '2px solid #fff',
               borderRadius: 30,
-              width: 300,
+              width: 210,
               padding: '12px 18px',
               backgroundColor: 'white',
               color: 'transparent',
               fontWeight: 1000,
-              fontSize: 30,
+              fontSize: 25,
               cursor: 'pointer',
               position: 'relative',
               overflow: 'hidden',
             }}
-            onClick={() => navigate('/account/create/welcome')}
+            onClick={() => {
+              const el = document.getElementById('meal-by-category');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
           >
             <span style={{ background: 'linear-gradient(90deg, #c288fc 0%, #0060e0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Start Today &gt;</span>
           </button>
@@ -107,7 +112,7 @@ export default function HeroSection() {
         <div className="flex-1 flex justify-center items-center">
           <a href="/" className="flex items-center">
             <img
-              src="src\picture\2.PNG"
+              src="src\picture\about-1.PNG"
               alt="web picture"
               className="h-300 w-400 "
             />

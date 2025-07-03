@@ -156,7 +156,7 @@ const Navbar = () => {
           ) : (
             <button
               onClick={openLogin}
-              className="text-purple-600 hover:text-purple-900 transition duration-200"
+              className="text-white hover:text-white transition duration-200"
             >
               <User className="w-6 h-6" />
             </button>

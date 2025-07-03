@@ -9,7 +9,7 @@ import FavoriteFoodsPage from './pages/FavoriteFoodsPage';
 import RequireUser from './components/RequireUser';
 import { useUser } from './contexts/UserContext'; 
 import { useProfileStepRedirect } from './hooks/useProfileStepRedirect';
-import CreateAccountWelcome from './pages/CreateAccountWelcome';
+
 import CreateAccountGoals from './pages/CreateAccountGoals';
 import TermsOfUse from './pages/TermsOfUse';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -25,7 +25,7 @@ export default function AppRoutes() {
       <Route path="/" element={<Homepage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/favorites" element={<FavoriteFoodsPage />} />
-      <Route path="/account/create/welcome" element={<CreateAccountWelcome />} />
+      
       <Route path="/account/create/goals" element={<CreateAccountGoals />} />
       <Route path="/terms-of-use" element={<TermsOfUse />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />

@@ -6,6 +6,7 @@ import IngredientsModal from './modals/IngredientsModal';
 import FoodCard from '../components/FoodCard';
 import { normalizeFood } from '../utils/normalizeFood';
 import { useUser } from '../contexts/UserContext';
+import LoadingOverlay from './LoadingOverlay';
 
 export default function MealByCategory() {
   const { token } = useUser();
@@ -24,34 +25,70 @@ export default function MealByCategory() {
     allergen: '',
   });
   const [visibleCategoryCount, setVisibleCategoryCount] = useState(3);
+  const [filterLoading, setFilterLoading] = useState(false);
+
+  // Thời gian hết hạn cache: 1 tiếng (ms)
+  const CACHE_EXPIRE = 3600 * 1000;
+
+  // Hàm fetchData tách riêng để gọi lại khi cần
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [foodRes, typeRes, allergenRes] = await Promise.all([
+        axios.get('http://localhost:8000/api/foods-by-category'),
+        axios.get('http://localhost:8000/api/food-types'),
+        axios.get('http://localhost:8000/api/allergens'),
+      ]);
+
+      setCategories(foodRes.data.data);
+      setFoodTypes(typeRes.data.data || []);
+      setAllergens(allergenRes.data || []);
+
+      // Lưu cache
+      localStorage.setItem('mealByCategoryCache', JSON.stringify({
+        categories: foodRes.data.data,
+        foodTypes: typeRes.data.data || [],
+        allergens: allergenRes.data || [],
+        timestamp: Date.now()
+      }));
+
+      if (token) {
+        const favRes = await axios.get('http://localhost:8000/api/favorites/ids', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFavoriteIds((favRes.data.ids || []).map((id) => Number(id)));
+      }
+    } catch (err) {
+      console.error('Error loading data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [foodRes, typeRes, allergenRes] = await Promise.all([
-          axios.get('http://localhost:8000/api/foods-by-category'),
-          axios.get('http://localhost:8000/api/food-types'),
-          axios.get('http://localhost:8000/api/allergens'),
-        ]);
-
-        setCategories(foodRes.data.data);
-        setFoodTypes(typeRes.data.data || []);
-        setAllergens(allergenRes.data || []);
-
-        if (token) {
-          const favRes = await axios.get('http://localhost:8000/api/favorites/ids', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setFavoriteIds((favRes.data.ids || []).map((id) => Number(id)));
-        }
-      } catch (err) {
-        console.error('Error loading data:', err);
-      } finally {
+    // Kiểm tra cache trước khi fetch
+    const cache = localStorage.getItem('mealByCategoryCache');
+    if (cache) {
+      const data = JSON.parse(cache);
+      if (Date.now() - data.timestamp < CACHE_EXPIRE) {
+        setCategories(data.categories);
+        setFoodTypes(data.foodTypes);
+        setAllergens(data.allergens);
         setLoading(false);
+        // Vẫn cần fetch favorite nếu đã đăng nhập
+        if (token) {
+          axios.get('http://localhost:8000/api/favorites/ids', {
+            headers: { Authorization: `Bearer ${token}` },
+          }).then(favRes => {
+            setFavoriteIds((favRes.data.ids || []).map((id) => Number(id)));
+          }).catch(err => {
+            console.error('Error loading favorites:', err);
+          });
+        }
+        return;
       }
-    };
-
+    }
+    // Nếu không có cache hoặc cache hết hạn, fetch lại
     fetchData();
   }, [token]);
 
@@ -127,6 +164,13 @@ export default function MealByCategory() {
     return result;
   }, [categories, filters, searchTerm]);
 
+  // Helper to handle filter change with loading overlay
+  const handleFilterChange = (updateFn) => (e) => {
+    setFilterLoading(true);
+    updateFn(e);
+    setTimeout(() => setFilterLoading(false), 500);
+  };
+
   if (loading) {
     return (
       <div className="text-center py-20">
@@ -142,6 +186,7 @@ export default function MealByCategory() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-16">
+      {filterLoading && <LoadingOverlay />}
       <h2 className="text-3xl font-bold text-center mb-10 text-white">
         Meal Catalog by Category
       </h2>
@@ -150,7 +195,7 @@ export default function MealByCategory() {
         <select
           className="p-2 border rounded"
           value={filters.category}
-          onChange={(e) => setFilters((prev) => ({ ...prev, category: e.target.value }))}
+          onChange={handleFilterChange((e) => setFilters((prev) => ({ ...prev, category: e.target.value })))}
         >
           <option value="">All Categories</option>
           {categories.map((cat) => (
@@ -163,7 +208,7 @@ export default function MealByCategory() {
         <select
           className="p-2 border rounded"
           value={filters.foodType}
-          onChange={(e) => setFilters((prev) => ({ ...prev, foodType: e.target.value }))}
+          onChange={handleFilterChange((e) => setFilters((prev) => ({ ...prev, foodType: e.target.value })))}
         >
           <option value="">All Food Types</option>
           {foodTypes.map((type) => (
@@ -176,9 +221,7 @@ export default function MealByCategory() {
         <select
           className="p-2 border rounded"
           value={filters.allergen}
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, allergen: parseInt(e.target.value) || '' }))
-          }
+          onChange={handleFilterChange((e) => setFilters((prev) => ({ ...prev, allergen: parseInt(e.target.value) || '' })))}
         >
           <option value="">All Allergens</option>
           {allergens.map((a) => (
@@ -192,7 +235,7 @@ export default function MealByCategory() {
           type="text"
           placeholder="Search meals..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleFilterChange((e) => setSearchTerm(e.target.value))}
           className="p-2 border rounded w-full"
         />
       </div>
@@ -200,7 +243,7 @@ export default function MealByCategory() {
       {visibleCategories.map((category) => (
         <div key={category._id} className="mb-16">
           <h3 className="text-2xl font-semibold text-purple-800 mb-6">{category._name}</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {category.foods.map((food) => {
               const normalized = normalizeFood(food);
               return (

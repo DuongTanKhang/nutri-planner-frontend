@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export default function TermsOfUse() {
+  useEffect(() => { document.title = 'Terms of Use | Nutri Planner'; }, []);
+
   return (
     <div className="min-h-screen bg-white pt-32 pb-16 px-4 flex flex-col items-center">
       <h1 className="text-[30px] font-extrabold text-purple-700 text-center mb-6" style={{ fontWeight: 1000 }}>
