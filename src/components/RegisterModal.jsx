@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../contexts/UserContext';
 
 const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   const [form, setForm] = useState({
@@ -14,6 +16,8 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useUser();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -82,11 +86,12 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
         setErrors(newErrors);
         setIsSubmitting(false);
       } else {
-        setSuccessMessage('🎉 Registration successful! Please login.');
+        setSuccessMessage('🎉 Registration successful! Redirecting...');
+        login(data.user, data.token);
         setTimeout(() => {
           setSuccessMessage('');
           onClose();
-          onSwitchToLogin();
+          navigate('/complete-profile/step1');
         }, 1500);
         setIsSubmitting(false);
       }

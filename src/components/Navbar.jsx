@@ -65,6 +65,7 @@ const Navbar = () => {
   const confirmLogout = () => {
     logout();
     setShowConfirmLogout(false);
+    navigate('/');
   };
 
   const toggleDropdown = () => {
